@@ -1,3 +1,18 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+CONTACT_EMAIL = 'kimya.ghasemloo@gmail.com'
+ADMIN_EMAIL = ['kimya.ghasemloo@gmail.com', ]
+
+
+# Twilio SendGrid
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
+
 """
 Django settings for predix project.
 
@@ -38,6 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'members',
+    'contact'
 ]
 
 MIDDLEWARE = [
@@ -119,6 +136,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+LOGIN_REDIRECT_URL = '/crypto/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

@@ -1,0 +1,10 @@
+{% extends 'crypto/base.html' %}
+{% load static %}
+{% block content %}
+<ul class="list-group list-group-flush">
+{% for post in news %}
+	<!--will redirect to the details of the news-->
+  <li class="list-group-item"><a href="{% url 'crypto:news_detail' post.id %}">{{post}}</li>
+{% endfor %}
+</ul>
+{% endblock %}

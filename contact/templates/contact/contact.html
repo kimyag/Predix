@@ -1,0 +1,42 @@
+{% extends 'crypto/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+input[type=text], input[type=email], textarea {
+ width: 100%;
+ padding: 12px 20px;
+ margin: 8px 0;
+ display: inline-block;
+}
+</style>
+<form action="" method="post">
+    <input type="hidden" name="csrfmiddlewaretoken" value="yTF5g7ceTgkwsOimKxZpuV10DG4a1TWFwQ60pneu047lPvu6kTAlNYPfYEC9G8jq">
+    {% csrf_token %}
+    <tr>
+        <th>
+            <label for="id_email">Email:</label>
+        </th>
+        <td>
+            <input type="email" name="email" maxlength="254" required id="id_email">
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <label for="id_subject">Subject:</label>
+        </th>
+        <td>
+            <input type="text" name="subject" maxlength="255" required id="id_subject">
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <label for="id_message">Message:</label>
+        </th>
+        <td>
+            <textarea name="message" cols="40" rows="10" required id="id_message"></textarea>
+        </td>
+    </tr>
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}
