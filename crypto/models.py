@@ -6,8 +6,8 @@ from django.urls import reverse
 
 class Cryptocurrency(models.Model):
 	rank = models.IntegerField()
-	name = models.CharField(max_length = 20)
-	symbol = models.CharField(max_length= 5)
+	name = models.CharField(max_length = 100)
+	symbol = models.CharField(max_length= 10)
 	price =  models.FloatField()
 	#potential_price = models.FloatField()
 	#general_info = models.CharField(max_length = 500)
@@ -16,7 +16,7 @@ class Cryptocurrency(models.Model):
 		return s
 
 class CryptocurrencyLog(models.Model):
-	name = models.CharField(max_length=20)
+	name = models.CharField(max_length=100)
 	current_time = models.DateTimeField()
 	current_price = models.FloatField()
 	cryptocurrency = models.ForeignKey(Cryptocurrency, null= True, on_delete = models.CASCADE)
@@ -33,7 +33,6 @@ class Post(models.Model):
 	post_date = models.DateField(auto_now_add=True)
 	category = models.CharField(max_length=255, default='coding')
 	snippet = models.CharField(max_length=255)
-	likes = models.ManyToManyField(User, related_name='blog_posts')
 
 	def total_likes(self):
 		return self.likes.count()
@@ -41,22 +40,17 @@ class Post(models.Model):
 	def __str__(self):
 		return self.title + ' | ' + str(self.author)
 
-	def get_absolute_url(self):
-		#return reverse('article-detail', args=(str(self.id)) )
-		return reverse('index')
 
 class Profile(models.Model):
 	user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
 	bio = models.TextField()
 	profile_pic = models.ImageField(null=True, blank=True, upload_to="images/profile/")
 	website_url = models.CharField(max_length=255, null=True, blank=True)
-	#fav_coins
+	#fav_coins = models.ManyToManyField(Cryptocurrency)
 
 	def __str__(self):
 		return str(self.user)
 
-	def get_absolute_url(self):
-		return reverse('index')
 
 class Comment(models.Model):
 	post = models.ForeignKey(Post, related_name="comments", on_delete=models.CASCADE)

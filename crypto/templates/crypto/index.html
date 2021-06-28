@@ -11,6 +11,7 @@
                <th scope="col">Name</th>
                <th scope="col">Symbol</th>
                <th scope="col">Price</th>
+               <th scope="col"></th>
            </tr>
        </thead>
         <tbody>
@@ -20,6 +21,7 @@
                 <td><li><a href="{% url 'crypto:detail' crypto.id %}">{{ crypto.name }}</a></li></td>
                 <td><li><a>{{ crypto.symbol }}</a></li></td>
                 <td><li><a>{{ crypto.price }}</a></li></td>
+                <td><li><a><i class="fa fa-heart" aria-hidden="true" action="like-crypto"></i></a></li></td>
             </tr>
         {% endfor %}
        </tbody>

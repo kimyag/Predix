@@ -39,7 +39,7 @@ class CreateProfilePageView(CreateView):
 class EditProfilePageView(generic.UpdateView):
 	model = Profile
 	template_name = 'registration/edit_profile_page.html'
-	fields = ['bio', 'profile_pic', 'website_url', 'facebook_url', 'twitter_url', 'instagram_url', 'pinterest_url']
+	fields = ['bio', 'profile_pic', 'website_url']
 	success_url = reverse_lazy('crypto:index')
 
 class ShowProfilePageView(DetailView):
@@ -57,9 +57,7 @@ class ShowProfilePageView(DetailView):
 
 class PasswordsChangeView(PasswordChangeView):
 	form_class = PasswordChangingForm
-	#foom_class = PasswordChangeForm
 	success_url = reverse_lazy('password_success')
-	#success_url = reverse_lazy('home')
 
 def password_success(request):
 	return render(request, 'registration/password_success.html', {})

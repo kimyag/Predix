@@ -1,15 +1,17 @@
 {% extends 'crypto/base.html' %}
 
 {% block content %}
+<body>
 	<center>
 		{% if searched %}
-			<h1>You Searched For {{searched}}</h1>
+			<h1>Posts Related To {{searched}}</h1>
 			<br/>
-			{% for crypto in cryptos %}
-				{{crypto}}<br/>
+			{% for post in cryptos %}
+				<li class="list-group-item"><a href="{% url 'crypto:news_detail' post.id %}">{{post}}</li><br/></a>
 			{% endfor %}
 		{% else %}
 			<h1>Hey! You Forgot To Search For A Crypto...</h1>
 		{% endif %}
 	</center>
+	</body>
 {% endblock %}
