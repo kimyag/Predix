@@ -51,43 +51,52 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
 
-<h1>Author: {{author}}</h1>
-<h4>Title: {{title}}</h4>
-<h4>{{post_date}}</h4>
-<h4>{{body}}</h4>
+<h1>Author: {{news.author}}</h1>
+<h4>Title: {{news.title}}</h4>
+<h4>{{news.post_date}}</h4>
+<h4>{{news.body|safe}}</h4>
 <ul class="list-group list-group-flush">
 {% if comments %}
-<h1>Comments</h1>
+<br/><br/>
+<h2>Comments</h2>
+<a href="{% url 'crypto:add_comment' news.pk %}">Add Comment</a>
 {% for comment in comments %}
-  <!--will redirect to the details of the news-->
-  <li class="list-group-item">{{comment}}</li>
+    <strong>
+        {{comment.name}}-
+        {{comment.date_added}}
+    </strong>
+    <br/>
+    {{comment.body}}
+    <hr>
 {% endfor %}
+{% else %}
+  No Comments Yet...<a href="{% url 'crypto:add_comment' news.pk %}">Add One</a>
 {%  endif %}
 </ul>
-<div class="form-group">
-<div class="like-content">
+<hr>
+
   
   <span>
     Did you like this news? Press like to make it easier for others to see
   </span>
-  
-  <button class="btn-secondary like-review">
-    <i class="fa fa-heart" aria-hidden="true"></i> Like
-  </button>
-  
+</br></br>
+</br>
+<form action="{% url 'crypto:like_post' news.pk %}"
+method = "POST">
+{% csrf_token %}
+{% if liked %}
+    <button type= "submit", name="post_id", value="{{ news.id }}", class="fa fa-heart">Unlike</button>
+{% else %}
+    <button type= "submit", name="post_id", value="{{ news.id }}", class="fa fa-heart-o">Like</button>
+{% endif %}
+-{{news.total_likes}}
+
+</form>
 </div>
 
 {% endblock %}
 {% block js %}
 
-<script>
-$(function(){
-	$(document).one('click', '.like-review', function(e) {
-		$(this).html('<i class="fa fa-heart" aria-hidden="true"></i> You liked this');
-		$(this).children('.fa-heart').addClass('animate-like');
-	});
-});
-</script>
 {% endblock js %}
 
 

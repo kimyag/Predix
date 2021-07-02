@@ -5,16 +5,16 @@ from .models import Cryptocurrency, CryptocurrencyLog, Post, Profile, Comment
 import logging
 from django.utils import timezone
 import requests
-from django.contrib.auth.decorators import login_required
 from datetime import timedelta
 from django.views import View
-from .forms import PostForm
+from .forms import PostForm, CommentForm
 from django.urls import reverse
 
 
 class SearchCryptoView(View):
 	def get(self, request):	
 		searched = request.GET['searched']
+		print("searching for ", searched)
 		cryptos = Post.objects.filter(title__icontains = searched  )
 
 		return render(request,'crypto/search_cryptos.html',{'searched':searched,'cryptos':cryptos})
@@ -25,40 +25,6 @@ class SearchCryptoView(View):
 
 class MyCryptoView(View):
 	def get(self, request):
-		headers = {
-		'Accepts': 'application/json',
-		'X-CMC_PRO_API_KEY': '4d958451-c172-4363-a441-d13e8c9d093f',
-		}
-		params = {
-			'start' : '1',
-			'limit' : '50',
-			'convert' : 'USD'
-		}
-		url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
-		json = requests.get(url, params=params, headers=headers).json()
-		coins = json['data']
-
-		for coin in coins:
-			rank = coin['cmc_rank']
-			name = coin ['name']
-			symbol = coin['symbol']
-			price = coin ['quote']['USD']['price']
-			if Cryptocurrency.objects.filter(symbol = symbol).exists():
-				Cryptocurrency.objects.filter(symbol = symbol).update(rank=rank, price=price)
-				current_time = timezone.now()
-				current_price = price
-				cryptocurrency = Cryptocurrency.objects.get(symbol = symbol)
-				cryptolog = CryptocurrencyLog(name = name, current_time = current_time, current_price = current_price, cryptocurrency = cryptocurrency)
-				cryptolog.save()
-
-
-			else:
-				c = Cryptocurrency(rank=rank, name=name, symbol=symbol, price=price)
-				c.save()
-				current_time = timezone.now()
-				current_price = price
-				cryptolog = CryptocurrencyLog(name = name, current_time = current_time, current_price = current_price, cryptocurrency = c)
-				cryptolog.save()
 		coins = Cryptocurrency.objects.all()
 		context = {
 			'best_crypto_list': coins
@@ -87,7 +53,6 @@ class DetailView(View):
 
 		for ct in cryptocurrency:
 			labels.append(ct.current_time.strftime("%Y-%m-%d %H:%M"))
-				#labels.append(ct.current_time)
 			data.append(ct.current_price)
 		data = json.dumps(data)
 		context ={
@@ -98,7 +63,6 @@ class DetailView(View):
 			'news': Post.objects.filter(title__contains = Cryptocurrency.objects.get(id = cryptocurrency_id).name )
 			}
 		return render(request, 'crypto/detail.html', context)
-	#cryptocurrency = CryptocurrencyLog.objects.filter(cryptocurrency_id = cryptocurrency_id, current_time__gte=timezone.now()-timedelta(hours=24))
 	
 class AddPostView(View):
 	def post(self, request):
@@ -112,20 +76,18 @@ class AddPostView(View):
 		context = {'form':form}
 		return render(request, 'crypto/add_post.html', context)
 
-#class AddCommentView(View):
-#	print("inside")
-#	def post(self, request):
-#		print("post")
-#		form = CommentForm(request.POST)
-#		if form.is_valid():
-#			form.save()
-#		context = {'form':form}
-#		return render(request, 'crypto/news_detail.html', context)
-#	def get(self, request):
-#		print("get")
-#		form = CommentForm()
-#		context = {'form':form}
-#		return render(request, 'crypto/news_detail.html', context)
+class AddCommentView(View):
+	def post(self, request,post_id):
+		form = CommentForm(request.POST)
+		if form.is_valid():
+			comment = Comment(name=request.POST.get('name'), body= request.POST.get('body'), post_id= post_id)
+			comment.save()
+		context = {'form':form}
+		return HttpResponseRedirect(reverse('crypto:news_detail', args=[str(post_id)]))
+	def get(self, request, post_id):
+		form = CommentForm()
+		context = {'form':form}
+		return render(request, 'crypto/add_comment.html', context)
 
 class PostView(View):
 	def get(self, request):
@@ -136,25 +98,47 @@ class PostView(View):
 class PostDetail(View):
 	def get(self, request, post_id):
 		news = Post.objects.get(id = post_id)
+		liked = False
+		if news.likes.filter(id=self.request.user.id).exists():
+			liked = True
 		context = {
-		'author': news.author,
-		'title':news.title,
-		'body':news.body,
-		'post_date':news.post_date,
-		#'likes':news.likes
-		'comments':  Comment.objects.filter(post = news)
+		'news':news,
+		'comments':  Comment.objects.filter(post = news),
+		'liked':liked
 		}
 		return render(request, 'crypto/news_detail.html', context)
 
 
-class LikeView(View):
-	def post(self, request,pk):
+def LikeView(request,pk):
 		post = get_object_or_404(Post, id=request.POST.get('post_id'))
-		post.likes.add(request.user)
-		return HttpResponseRedirect(reverse('news_detail',args=[str(pk)]))
-	def get(self, request,pk):
-		post = get_object_or_404(Post, id=request.POST.get('post_id'))
-		post.likes.add(request.user)
-		return HttpResponseRedirect(reverse('news_detail',args=[str(pk)]))
+		liked = False
+		if post.likes.filter(id=request.user.id).exists():
+			post.likes.remove(request.user)
+			liked = False
+		else:
+			post.likes.add(request.user)
+			post.likes.set = True
+		return HttpResponseRedirect(reverse('crypto:news_detail', args=[str(pk)]))
 
-	
+def FavCoinView(request,pk):
+		crypto = get_object_or_404(Cryptocurrency, id=request.POST.get('Cryptocurrency_id'))
+		liked = False
+		print(crypto.favs)
+		if crypto.favs.filter(id=request.user.id).exists():
+			print("---EXISTS---")
+			crypto.favs.remove(request.user)
+			liked = False
+		else:
+			print("---DOES NOT EXISTS---")
+			crypto.favs.add(request.user)
+			crypto.favs.set = True
+		coins = Cryptocurrency.objects.all()
+		#likes = Cryptocurrency.objects.filter()
+		context = {
+			'best_crypto_list': coins,
+			'liked':liked
+			}
+		return HttpResponseRedirect(reverse('crypto:index'))
+		#return render(request,'crypto/index.html', context)
+
+
