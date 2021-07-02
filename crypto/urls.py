@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.urls import include, path
 
 from . import views
+from .views import LikeView, FavCoinView
+
 app_name = 'crypto'
 urlpatterns = [
 	path('', views.MyCryptoView.as_view(), name='index'),
@@ -13,5 +15,8 @@ urlpatterns = [
 	path('add_post/', views.AddPostView.as_view(), name='add_post'),
 	path('news/', views.PostView.as_view(), name='view_post'),
 	path('news/<int:post_id>', views.PostDetail.as_view(), name='news_detail'),
-	path('like/<int:pk>',views.LikeView.as_view(), name='like_post'),
+	path('like/<int:pk>', LikeView, name='like_post'),
+	path('fav/<int:pk>', FavCoinView, name='fav_coin'),
+	path('news/<int:post_id>/comment/', views.AddCommentView.as_view(), name='add_comment'),
+
 ]
