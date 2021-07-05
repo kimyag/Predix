@@ -76,11 +76,10 @@
                                                 <form action="{% url 'crypto:fav_coin' crypto.pk %}"
                                                         method = "POST">
                                                         {% csrf_token %}
-                                                        {{liked}}
-                                                        {% if liked %}
-                                                            <button type= "submit", name="Cryptocurrency_id", value="{{ crypto.id }}", class="fa fa-heart">unlike</button>
+                                                        {% if crypto.id in likes %}
+                                                            <button type= "submit", name="Cryptocurrency_id", value="{{ crypto.id }}", class="fa fa-heart"></button>
                                                         {% else %}
-                                                            <button type= "submit", name="Cryptocurrency_id", value="{{ crypto.id }}", class="fa fa-heart-o">like</button>
+                                                            <button type= "submit", name="Cryptocurrency_id", value="{{ crypto.id }}", class="fa fa-heart-o"></button>
                                                         {% endif %}
                                                 </form>
                                             </a></li></td>
@@ -206,42 +205,21 @@
                 <div class="col-md-12">
                     <div class="full">
                         <div class="heading_main text_align_center">
-                           <h2><span class="theme_color"></span>Most Popular Coins</h2>    
+                           <h2><span class="theme_color"></span>You May Be Interested In</h2>    
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
+            {% for into in interest %}
                 <div class="col-md-4 col-sm-6 col-xs-12">
                     <div class="full news_blog">
                        <img class="img-responsive" src="{% static 'crypto/images/b1.png' %}" alt="#" />
                        <div class="overlay"><a class="main_bt transparent" href="#">View</a></div>
-                       <div class="blog_details">
-                         <h3>Bitcoin News</h3>
-                         <p>pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
-                       </div>
+                         <a class="blog_details" href="exchange.html"><h3>{{into.cryptocurrency.name}} News</h3></a>
                     </div>
                 </div>
-                <div class="col-md-4 col-sm-6 col-xs-12">
-                    <div class="full news_blog">
-                        <img class="img-responsive" src="{% static 'crypto/images/b2.png' %}" alt="#" />
-                        <div class="overlay"><a class="main_bt transparent" href="#">View</a></div>
-                       <div class="blog_details">
-                         <h3>Ethereum News</h3>
-                         <p>pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
-                       </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6 col-xs-12">
-                    <div class="full news_blog">
-                        <img class="img-responsive" src="{% static 'crypto/images/b3.png' %}" alt="#{% static 'crypto/' %}" />
-                        <div class="overlay"><a class="main_bt transparent" href="#">View</a></div>
-                       <div class="blog_details">
-                         <h3>Light News</h3>
-                         <p>pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
-                       </div>
-                    </div>
-                </div>
+            {% endfor %}
              </div>
         </div>
     </div>

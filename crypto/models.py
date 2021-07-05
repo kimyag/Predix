@@ -63,4 +63,9 @@ class Comment(models.Model):
 	def __str__(self):
 		return '%s - %s' % (self.name, self.body)
 
+class Fav(models.Model):
+	user = models.ForeignKey(User, related_name='favorites',on_delete=models.CASCADE)
+	cryptocurrency = models.ForeignKey('Cryptocurrency', related_name='favorites',on_delete=models.CASCADE)
+
+
 

@@ -117,10 +117,11 @@
                      </div>
                  </nav>
                  <div class="search-box">
-                    <input type="text" class="search-txt" placeholder="Search">
-                    <a class="search-btn">
-                        <input type="image" src="{% static 'crypto/images/search_icon.png' %}" alt="#" />
-                    </a>
+                    <form class="form-inline my-2 my-lg-0" method=GET action ="{% url 'crypto:search-cryptos' %}" >
+                      {% csrf_token %}
+                      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name = "searched">
+                      <button class="btn btn-outline-warning" type="submit">Search</button>
+                    </form>
                 </div> 
                 </div>
             </div>
@@ -181,17 +182,7 @@
 			 </div>
         </div>
     </footer>
-    <!-- End Footer -->
-
-    <div class="footer_bottom">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <p class="crp">© Copyrights 2019 design by html.design</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- End Footer --
 
     <a href="#" id="scroll-to-top" class="hvr-radial-out"><i class="fa fa-angle-up"></i></a>
 
