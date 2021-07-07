@@ -224,6 +224,11 @@ padding: 7px 15px;
 }
 /* mobile or only mobile */
  @media (max-width: 767px) {
+
+.form-control{
+    width: 70%;
+}
+
     .site_information {
          float: left;
          width: 100%;

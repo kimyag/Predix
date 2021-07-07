@@ -199,6 +199,7 @@
     </div>
     <!-- end section -->
 	<!-- section -->
+    {% if user.is_authenticated %}
     <div class="section layout_padding padding_top_0">
         <div class="container">
             <div class="row">
@@ -223,6 +224,7 @@
              </div>
         </div>
     </div>
+    {% endif %}
     <!-- end section -->
     <!-- section -->
     <div class="section layout_padding padding_top_0">

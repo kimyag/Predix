@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 import json
@@ -10,6 +11,8 @@ from django.views import View
 from .forms import PostForm, CommentForm
 from django.urls import reverse
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.http import JsonResponse
+
 
 
 class SearchCryptoView(View):
@@ -27,17 +30,22 @@ class SearchCryptoView(View):
 class MyCryptoView(View):
 	def get(self, request):
 		coins = Cryptocurrency.objects.all()
-		interest = Fav.objects.filter(user=request.user)[:3]
+		user=request.user
+		if request.user.is_authenticated:
+			interest = Fav.objects.filter(user=request.user)[:3]
+			likes =Fav.objects.filter(user=request.user).values_list('cryptocurrency_id', flat=True)
+		else:
+			likes = []
+			interest = []
 		context = {
 					'best_crypto_list': coins,
-					'likes': Fav.objects.filter(user=request.user).values_list('cryptocurrency_id', flat=True),
+					'likes': likes,
 					'interest': interest
 					}
 		return render(request, 'crypto/index.html', context)
 	
 
 
-#@login_required(login_url = 'crypto:login')
 class DetailView(View):
 	def get(self, request, cryptocurrency_id):
 		cryptocurrency = CryptocurrencyLog.objects.filter(cryptocurrency_id=cryptocurrency_id).order_by('current_time')
@@ -68,7 +76,7 @@ class DetailView(View):
 			}
 		return render(request, 'crypto/detail.html', context)
 	
-class AddPostView(View):
+class AddPostView(LoginRequiredMixin, View):
 	def post(self, request):
 		form = PostForm(request.POST)
 		if form.is_valid():
@@ -114,15 +122,23 @@ class PostDetail(View):
 
 
 def LikeView(request,pk):
-		post = get_object_or_404(Post, id=request.POST.get('post_id'))
-		liked = False
-		if post.likes.filter(id=request.user.id).exists():
-			post.likes.remove(request.user)
+		user = request.user
+		if request.method == 'POST':
+			post_id = request.POST['post_id']
+			post = get_object_or_404(Post, id=post_id)
 			liked = False
-		else:
-			post.likes.add(request.user)
-			post.likes.set = True
-		return HttpResponseRedirect(reverse('crypto:news_detail', args=[str(pk)]))
+			if post.likes.filter(id=request.user.id).exists():
+				post.likes.remove(request.user)
+				liked = False
+			else:
+				post.likes.add(request.user)
+				post.likes.set = True
+			print(post.likes.filter(id=request.user.id).exists())
+		return JsonResponse({'liked':post.likes.filter(id=request.user.id).exists()})
+
+
+
+
 
 def FavCoinView(request,pk):
 		crypto = get_object_or_404(Cryptocurrency, id=request.POST.get('Cryptocurrency_id'))

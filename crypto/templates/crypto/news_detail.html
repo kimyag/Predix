@@ -1,5 +1,6 @@
 {% extends 'crypto/base.html' %}
 {% block content %}
+
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
 
@@ -33,22 +34,49 @@
   </span>
 </br></br>
 </br>
-<form action="{% url 'crypto:like_post' news.pk %}"
-method = "POST">
-{% csrf_token %}
+
 {% if liked %}
-    <button type= "submit", name="post_id", value="{{ news.id }}", class="fa fa-heart">Unlike</button>
+    <button type= "button", value="{{ news.id }}", class="fa fa-heart thumb">Unlike</button>
 {% else %}
-    <button type= "submit", name="post_id", value="{{ news.id }}", class="fa fa-heart-o">Like</button>
+    <button type= "button", value="{{ news.id }}", class="fa fa-heart-o thumb">Like</button>
 {% endif %}
 -{{news.total_likes}}
 
-</form>
+
 </div>
 
 {% endblock %}
 {% block js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(function(){
+    $('.thumb').click(function () {
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'crypto:like_post' news.pk %}',
+                data: {
+                    'post_id': '{{ news.id }}',
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                },
+                success: LikePost,
+                dataType: 'html'
+            });
 
+            function LikePost(data, jqXHR) {
+                var data = $.parseJSON(data)
+                if (data['liked']) {
+                    $('.thumb').removeClass("fa fa-heart-o thumb").addClass('fa fa-heart thumb')
+                }
+                else
+                    {
+                        $('.thumb').removeClass("fa fa-heart thumb").addClass('fa fa-heart-o thumb')
+                    }
+
+
+            }
+        });
+});
+</script>
 {% endblock js %}
 
 
