@@ -24,11 +24,12 @@
     <!-- Pogo Slider CSS -->
     <link rel="stylesheet" href="{% static 'crypto/css/pogo-slider.min.css' %}" />
     <!-- Site CSS -->
-    <link rel="stylesheet" href="{% static 'crypto/css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'crypto/css/style.css' %}?v5" />
     <!-- Responsive CSS -->
-    <link rel="stylesheet" href="{% static 'crypto/css/responsive.css' %}" />
+    <link rel="stylesheet" href="{% static 'crypto/css/responsive.css' %}?v2" />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'crypto/css/custom.css' %}" />
+    <link rel="stylesheet" href="{% static 'crypto/css/font-awesome.min.css' %}" />
 
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -50,6 +51,36 @@
 
     <!-- Start header -->
     <header class="top-header">
+
+<div class="top-menu">
+ {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-user"></i>
+                            {{ user.first_name }} 
+                            {{ user.last_name }}
+                          </a>
+                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{% url 'members:edit_profile' %}">Edit Settings</a>
+                            <a class="dropdown-item" href="{% url 'crypto:add_post' %}">Add Post</a>
+                            {% if user.profile.id %}
+                              <a class="dropdown-item" href="{% url 'members:edit_profile_page' user.profile.id %}">Edit Profile Page</a>
+                              <a class="dropdown-item" href="{% url 'members:show_profile_page' user.profile.id %}">Show Profile Page</a>           
+                            {% else %}  
+                              <a class="dropdown-item" href="{% url 'members:create_profile_page' %}">Create Profile Page</a>  
+                            {% endif %}
+                            <a class="dropdown-item" href="{% url 'members:logoutPage' %}">Logout</a>
+                          </div>
+                        </li>
+                        {% else %}
+
+                          <a class="top-right-bt" href="{% url 'members:register' %}"> <i class="fa fa-plus"> </i> Register</a>
+                          |
+                          <a class="top-right-bt"  href="{% url 'members:loginPage' %}"><i class="fa fa-sign-in"> </i> Login</a>
+                {% endif %}
+
+</div> 
+
         <div class="header_top">
             
             <div class="container">
@@ -71,59 +102,37 @@
         </div>
         <div class="header_bottom">
           <div class="container">
+
+
             <div class="col-sm-12">
                 <div class="menu_orange_section" style="background: #ff880e;">
                    <nav class="navbar header-nav navbar-expand-lg"> 
                      <div class="menu_section">
-                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-wd" aria-controls="navbar-wd" aria-expanded="false" aria-label="Toggle navigation">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-                <div class="collapse navbar-collapse justify-content-end" id="navbar-wd">
-                    <ul class="navbar-nav">
+                       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-wd" aria-controls="navbar-wd" aria-expanded="false" aria-label="Toggle navigation">
+                          <span></span>
+                          <span></span>
+                          <span></span>
+                      </button>
+                    <div class="collapse navbar-collapse justify-content-end" id="navbar-wd">
+                      <ul class="navbar-nav">
                         <li><a class="nav-link active" href="{% url 'crypto:index' %}">Home</a></li>
                         <li><a class="nav-link" href="exchange.html">Exchange</a></li>
                         <li><a class="nav-link" href="{% url 'crypto:view_post' %}">News</a></li>
                         <li><a class="nav-link" href="{% url 'contact' %}">Contact</a></li>
-                        {% if user.is_authenticated %}
-                      <li class="nav-item dropdown">
-                          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{ user.first_name }} 
-                            {{ user.last_name }}
-                          </a>
-                          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="{% url 'members:edit_profile' %}">Edit Settings</a>
-                            <a class="dropdown-item" href="{% url 'crypto:add_post' %}">Add Post</a>
-                            {% if user.profile.id %}
-                              <a class="dropdown-item" href="{% url 'members:edit_profile_page' user.profile.id %}">Edit Profile Page</a>
-                              <a class="dropdown-item" href="{% url 'members:show_profile_page' user.profile.id %}">Show Profile Page</a>           
-                            {% else %}  
-                              <a class="dropdown-item" href="{% url 'members:create_profile_page' %}">Create Profile Page</a>  
-                            {% endif %}
-                            <a class="dropdown-item" href="{% url 'members:logoutPage' %}">Logout</a>
-                          </div>
-                      </li>
-                {% else %}
-                    <li class="nav-item">
-                      <a class="nav-link" href="{% url 'members:register' %}">Register</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="{% url 'members:loginPage' %}">Login</a>
-                    </li>
-                {% endif %}
-                    </ul>
-                </div>
-                     </div>
+                      </ul>
+                  </div>
+                
                  </nav>
                  <div class="search-box">
-                    <input type="text" class="search-txt" placeholder="Search">
-                    <a class="search-btn">
-                        <input type="image" src="{% static 'crypto/images/search_icon.png' %}" alt="#" />
-                    </a>
+                    <form class="form-inline my-2 my-lg-0" method=GET action ="{% url 'crypto:search-cryptos' %}" >
+                      {% csrf_token %}
+                      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name = "searched">
+                      <button class="btn btn-outline-warning" type="submit">Search</button>
+                    </form>
                 </div> 
                 </div>
             </div>
+
           </div>
         </div>
         
@@ -181,17 +190,7 @@
 			 </div>
         </div>
     </footer>
-    <!-- End Footer -->
-
-    <div class="footer_bottom">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <p class="crp">© Copyrights 2019 design by html.design</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- End Footer --
 
     <a href="#" id="scroll-to-top" class="hvr-radial-out"><i class="fa fa-angle-up"></i></a>
 

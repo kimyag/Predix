@@ -544,8 +544,7 @@ a.navbar-brand {
 
 .search-box {
     position: absolute;
-    float: right;
-    right: 10px;
+    right: -10px;
     top: 9px;
     z-index: 11;
 }
@@ -2365,3 +2364,13 @@ ul.bottom_menu li {
     background: #050000;
 }
 
+.top-menu{
+	position:absolute;
+	top:2px;
+	right:5px;
+	
+}
+.top-right-bt{
+	margin:5px;
+
+}
