@@ -17,6 +17,9 @@ urlpatterns = [
 	path('news/<int:post_id>', views.PostDetail.as_view(), name='news_detail'),
 	path('like/<int:pk>', LikeView, name='like_post'),
 	path('fav/<int:pk>', FavCoinView, name='fav_coin'),
-	path('news/<int:post_id>/comment/', views.AddCommentView.as_view(), name='add_comment'),
+	path('news/<int:post_id>/comment/', views.AddCommentView.as_view(), name='add_comment'),	
+	path('news/<int:post_id>/delete/', views.DeletePostView.as_view(), name='delete_post'),
+	path('news/<int:post_id>/edit/', views.EditPostView.as_view(), name='edit_post'),
+	path('exchange/', views.ExchangeView.as_view(), name='exchange'),
 
 ]

@@ -40,13 +40,62 @@
         </p>
         
       </div>
+
+
     </div>
   </div>
 </div>
-
+<h1>User Posts</h1>
+      {% if user_posts %}
+          {% for post in user_posts%}
+            <a href="{% url 'crypto:news_detail' post.id %}"> {{post.title}}</a>
+            {% if post.author == user %}  
+            |
+            <a href="{% url 'crypto:edit_post' post.id %}"> Update</a>  
+            |
+            <a href="{% url 'crypto:delete_post' post.id %}" class="removeItem delete"> Delete</a>  
+            {% endif %}
+          </br>
+<span></span>
+<span></span>
+          {% endfor %}
+      {% else %}
+        <h5>You Have No Posts Yet</h5>
+      {% endif %}
+      <h1>User Favorite Coins</h1>
+      {% if user_favs %}
+          {% for fav in user_favs%}
+            <a href="#"> {{fav.cryptocurrency.name}}</a>
+          </br>
+          {% endfor %}
+      {% else %}
+        <h5>You Have No Posts Yet</h5>
+      {% endif %}
 <br/><br/>
 
 
 
-
 {% endblock %}
+{% block js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(function(){
+    $('.removeItem').click(function (event) {
+    if (confirm('Are you sure you want to delete this?')) {
+        $.ajax({
+            data: {
+                'post_id': '{{ news.id }}',
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+            },
+            success: function () {
+                alert("SUCCESS")
+            }
+        });
+    }
+});
+});
+</script>
+{% endblock js %}
+
+
+
