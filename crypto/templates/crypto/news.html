@@ -1,11 +1,28 @@
 {% extends 'crypto/base.html' %}
 {% load static %}
 {% block content %}
+<style>
+.blog {
+  border: 1px solid gray; 
+  padding: 35px 70px;
+}
+</style>
 </br></br></br></br>
-<ul class="list-group list-group-flush">
-{% for post in news %}
-	<!--will redirect to the details of the news-->
-  <li class="list-group-item"><a href="{% url 'crypto:news_detail' post.id %}">{{post}}</li>
-{% endfor %}
-</ul>
+<section class="u-align-center u-clearfix u-section-1" id="carousel_d094">
+      <div class="u-clearfix u-sheet u-sheet-1">
+       {% for post in news %}
+        <div class="blog">
+                <h2 class="u-blog-control u-text u-text-1">
+                  <a class="u-post-header-link" href="blog/post.html">{{post.title}}</a>
+                </h2>
+                <div class="u-blog-control u-post-content u-text u-text-2">{{post.body}}</div>
+                <div class="u-blog-control u-metadata u-metadata-1">
+                  <span class="u-meta-date u-meta-icon">{{post.post_date}}</span>
+                </div>
+                <a href="{% url 'crypto:news_detail' post.id %}" class="u-blog-control u-border-2 u-border-grey-dark-1 u-btn u-btn-rectangle u-button-style u-none u-btn-1">Read More</a>
+        </div>
+		{% endfor %}
+      </div>
+    </section>
 {% endblock %}
+

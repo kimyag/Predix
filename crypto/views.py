@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 import json
 from .models import Cryptocurrency, CryptocurrencyLog, Post, Profile, Comment, Fav
@@ -18,7 +18,6 @@ from django.http import JsonResponse
 class SearchCryptoView(View):
 	def get(self, request):	
 		searched = request.GET['searched']
-		print("searching for ", searched)
 		cryptos = Post.objects.filter(title__icontains=searched )
 
 		return render(request,'crypto/search_cryptos.html',{'searched':searched,'cryptos':cryptos})
@@ -37,6 +36,7 @@ class MyCryptoView(View):
 		else:
 			likes = []
 			interest = []
+		print(likes)
 		context = {
 					'best_crypto_list': coins,
 					'likes': likes,
@@ -133,11 +133,11 @@ def LikeView(request,pk):
 			else:
 				post.likes.add(request.user)
 				post.likes.set = True
-			print(post.likes.filter(id=request.user.id).exists())
+		context = {
+					'liked':post.likes.filter(id=request.user.id).exists(),
+					'total_likes': post.total_likes
+					}
 		return JsonResponse({'liked':post.likes.filter(id=request.user.id).exists()})
-
-
-
 
 
 def FavCoinView(request,pk):
@@ -152,6 +152,43 @@ def FavCoinView(request,pk):
 		coins = Cryptocurrency.objects.all()
 
 		return HttpResponseRedirect(reverse('crypto:index'))
-		#return render(request,'crypto/index.html', context)
+
+
+class DeletePostView(View):
+	def get(self, request, post_id):
+		post = Post.objects.get(id=post_id)
+		if post.author != request.user:
+			raise Http404
+		post.delete()
+		return HttpResponseRedirect(reverse('crypto:index'))
+
+class EditPostView(View):
+	def get(self, request, post_id):
+		post = Post.objects.get(id=post_id)
+		form = PostForm(instance = post)
+		if post.author != request.user:
+			raise Http404
+		context = {'form':form}
+		return render(request, 'crypto/edit_post.html', context)
+
+	def post(self, request, post_id):
+		form = PostForm(request.POST)
+		if form.is_valid():
+			post = Post.objects.get(id=post_id)
+			if post.author != request.user:
+				raise Http404
+			post.delete()
+			form.save()
+		context = {'form':form}
+		return redirect('crypto:index')
+
+class ExchangeView(View):
+	def get(self, request):
+		return render(request, 'crypto/exchange.html', {})
+	def post(self, request):
+		return render(request, 'crypto/exchange.html', {})
+
+
+
 
 

@@ -8,6 +8,7 @@ from .forms import SignUpForm, EditProfileForm, PasswordChangingForm, ProfilePag
 from crypto.models import Profile
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.shortcuts import redirect
+from crypto.models import Post, Fav
 
 
 
@@ -53,6 +54,8 @@ class ShowProfilePageView(DetailView):
 		page_user = get_object_or_404(Profile, id=self.kwargs['pk'])
 
 		context["page_user"] = page_user
+		context["user_posts"] = Post.objects.filter(author=page_user.user)
+		context["user_favs"] = Fav.objects.filter(user=page_user.user) 
 		return context
 
 class PasswordsChangeView(PasswordChangeView):
