@@ -13,7 +13,7 @@
        {% for post in news %}
         <div class="blog">
                 <h2 class="u-blog-control u-text u-text-1">
-                  <a class="u-post-header-link" href="blog/post.html">{{post.title}}</a>
+                  <a class="u-post-header-link" href="{% url 'crypto:news_detail' post.id %}">{{post.title}}</a>
                 </h2>
                 <div class="u-blog-control u-post-content u-text u-text-2">{{post.body}}</div>
                 <div class="u-blog-control u-metadata u-metadata-1">

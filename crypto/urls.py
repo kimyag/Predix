@@ -21,5 +21,7 @@ urlpatterns = [
 	path('news/<int:post_id>/delete/', views.DeletePostView.as_view(), name='delete_post'),
 	path('news/<int:post_id>/edit/', views.EditPostView.as_view(), name='edit_post'),
 	path('exchange/', views.ExchangeView.as_view(), name='exchange'),
+	path('sell/', views.SellCryptoView.as_view(), name='sell'),
+	path('buy/', views.BuyCryptoView.as_view(), name='buy'),
 
 ]

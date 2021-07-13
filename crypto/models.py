@@ -49,15 +49,23 @@ class Profile(models.Model):
 	bio = models.TextField()
 	profile_pic = models.ImageField(null=True, blank=True, upload_to="images/profile/")
 	website_url = models.CharField(max_length=255, null=True, blank=True)
+	owned_dollar = models.FloatField(default=0)
+
 
 	def __str__(self):
 		return str(self.user)
 
+class Entity(models.Model):
+	user = models.ForeignKey(User, related_name='entities',on_delete=models.CASCADE)
+	cryptocurrency = models.ForeignKey(Cryptocurrency, related_name='entities',on_delete=models.CASCADE)
+	amount = models.FloatField(default=0)
+	total = models.FloatField(default=0)
+
 
 class Comment(models.Model):
 	post = models.ForeignKey(Post,null= True,  on_delete=models.CASCADE)
-	name = models.CharField(max_length=255)
-	body = models.TextField()
+	name = models.CharField(max_length=50)
+	body = RichTextField(blank=True, null = True)
 	date_added = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):

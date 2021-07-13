@@ -1,13 +1,18 @@
 {% extends 'crypto/base.html' %}
 {% block title %}Comment On Blog Post{% endblock %}
 {% block content %}
-
+<style>
+	.blog {
+  border: 1px solid gray; 
+  padding: 35px 70px;
+}
+</style>
     
 
 	<h1>Add Comment...</h1>
 	<br/><br/>
 
-	<div class="form-group">
+	<div class="form-group blog">
 <form method="POST">
 			{% csrf_token %}
 			{{ form.as_p }}

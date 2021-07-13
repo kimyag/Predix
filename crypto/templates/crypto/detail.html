@@ -1,6 +1,12 @@
 {% extends 'crypto/base.html' %}
 {% load static %}
 {% block content %}
+<style>
+.dt {
+  border: 1px solid orange; 
+  padding: 35px 70px;
+}
+</style>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script language="JavaScript">
       google.charts.load('current', {'packages':['line', 'corechart']});
@@ -48,37 +54,21 @@
     }
   </script>
 </br></br></br></br>
-<div class="container">
-  <div class="row">
-  <div class = "col-md-9" align="left">
-    <div id="chart_div"></div>
-    <div class="align-content">
-      <div class="box">
+    <div id="chart_div" align ="center"></div>
         <body onload="displayLineChart();">
-          <canvas id="lineChart" height="450" width="800"></canvas>
+          <div id="lineChart"></div>
         </body>
-      </div>
-    </div>
-    </div>
-  <div class = "col-md-3" align="right" align = "center">
-    <h4>Name: {{jsonData.name}}</h4>
-    <h4>ID: {{jsonData.id}}</h4>
-    <h4>Symbol: {{jsonData.symbol}}</h4>
-    <h4>Date Added: {{jsonData.date_added}}</h4>
-    <h4>Max Supply: {{jsonData.max_supply}}</h4>
-    <h4>Circulating Supply: {{jsonData.circulating_supply}}</h4>
-    <h4>Total Supply: {{jsonData.total_supply}}</h4>
-    <h4>Last Updated: {{jsonData.last_updated}}</h4>
     </div>
   </div>
+    <h4>Name: {{jsonData.name}} | ID: {{jsonData.id}} | Symbol: {{jsonData.symbol}} | Date Added: {{jsonData.date_added}} | Last Updated: {{jsonData.last_updated}}</h4>
+    <h4>Max Supply: {{jsonData.max_supply}} | Circulating Supply: {{jsonData.circulating_supply}} | Total Supply: {{jsonData.total_supply}} </h4>
   <ul class="list-group list-group-flush">
 {% for post in news %}
   <!--will redirect to the details of the news-->
-  <li class="list-group-item"><a href="{% url 'crypto:news_detail' post.id %}">{{post}}
+  <li class="list-group-item"><a href="{% url 'crypto:news_detail' post.id %}">{{post}}</a>
   </li>
 {% endfor %}
 </ul>
-</div>
 
 
 {% endblock %}

@@ -71,7 +71,7 @@
                                             <td><li><a>{{ crypto.rank }}</a></li></td>
                                             <td><li><a href="{% url 'crypto:detail' crypto.id %}">{{ crypto.name }}</a></li></td>
                                             <td><li><a>{{ crypto.symbol }}</a></li></td>
-                                            <td><li><a>{{ crypto.price }}</a></li></td>
+                                            <td><li><a>{{ crypto.price }}$</a></li></td>
                                             <td><li><a>
                                                 <form action="{% url 'crypto:fav_coin' crypto.pk %}"
                                                         method = "POST">

@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 import json
-from .models import Cryptocurrency, CryptocurrencyLog, Post, Profile, Comment, Fav
+from .models import Cryptocurrency, CryptocurrencyLog, Post, Profile, Comment, Fav, Entity
 import logging
 from django.utils import timezone
 import requests
@@ -36,7 +36,6 @@ class MyCryptoView(View):
 		else:
 			likes = []
 			interest = []
-		print(likes)
 		context = {
 					'best_crypto_list': coins,
 					'likes': likes,
@@ -184,9 +183,47 @@ class EditPostView(View):
 
 class ExchangeView(View):
 	def get(self, request):
-		return render(request, 'crypto/exchange.html', {})
+		user_entities = Entity.objects.filter(user=request.user)
+		total = 0
+		for entity in user_entities:
+			total += entity.cryptocurrency.price * entity.amount
+		context = {
+			'user_entities':user_entities,
+			'total':total,
+			'crypto_list': Cryptocurrency.objects.all()
+		}
+		return render(request, 'crypto/exchange.html',context )
 	def post(self, request):
-		return render(request, 'crypto/exchange.html', {})
+		user_entities = Entity.objects.filter(user=request.user)
+		return render(request, 'crypto/exchange.html', {'user_entities':user_entities})
+
+class BuyCryptoView(View):
+	def get(self, request):
+			amount = request.GET['amount']
+			crypto = Cryptocurrency.objects.get(id=request.GET['cryptos'])
+			total=float(crypto.price)*float(amount)
+			entity = Entity(user=request.user, cryptocurrency=crypto, amount=amount, total=total)
+			entity.save()
+			print(entity.cryptocurrency.name,"BOUGHT")
+			user_entities = Entity.objects.filter(user=request.user)
+			return redirect('crypto:index')
+
+class SellCryptoView(View):
+	def get(self, request):
+			amount = request.GET['amount']
+			crypto = Cryptocurrency.objects.get(id=request.GET['cryptos'])
+			entity = Entity.objects.get(cryptocurrency_id=crypto.id)
+			if float(amount) < entity.amount:
+				new_amount = entity.amount-float(amount)
+				entity.update(amount=new_amount)
+			elif float(amount) == entity.amount:
+				entity.delete()
+			else:
+				print("you have not enough money")
+
+
+			return redirect('crypto:index')
+
 
 
 
