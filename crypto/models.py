@@ -11,8 +11,6 @@ class Cryptocurrency(models.Model):
 	symbol = models.CharField(max_length= 10)
 	price =  models.FloatField()
 	favs = models.ManyToManyField(User, related_name = 'crypto_cryptocurrency')
-	#potential_price = models.FloatField()
-	#general_info = models.CharField(max_length = 500)
 	def __str__(self):
 		s = str(self.rank)+" "+self.name+" "+self.symbol+" "+str(self.price)
 		return s
@@ -28,26 +26,19 @@ class CryptocurrencyLog(models.Model):
 
 class Post(models.Model):
 	title = models.CharField(max_length=255)
-	header_image = models.ImageField(null=True, blank=True, upload_to="images/")
-	title_tag = models.CharField(max_length=255)
 	author = models.ForeignKey(User, on_delete=models.CASCADE)
 	body = RichTextField(blank=True, null = True)
 	post_date = models.DateField(auto_now_add=True)
-	category = models.CharField(max_length=255, default='coding')
-	snippet = models.CharField(max_length=255)
-	likes = models.ManyToManyField(User, related_name = 'crypto_post')
-
-	def total_likes(self):
-		return self.likes.count()
+	likes = models.ManyToManyField(User, related_name='crypto_post')
 
 	def __str__(self):
 		return self.title + ' | ' + str(self.author)
 
 
 class Profile(models.Model):
-	user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+	user = models.OneToOneField(User, null=True, on_delete=models.CASCADE, related_name="profile")
 	bio = models.TextField()
-	profile_pic = models.ImageField(null=True, blank=True, upload_to="images/profile/")
+	profile_pic = models.ImageField(null=True, blank=True, upload_to="profile/")
 	website_url = models.CharField(max_length=255, null=True, blank=True)
 	owned_dollar = models.FloatField(default=0)
 

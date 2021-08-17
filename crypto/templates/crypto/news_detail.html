@@ -11,12 +11,16 @@
   align-self:center;  
 }
 </style>
+
 <div class="dt"
-<h1>Author: {{news.author}}</h1>
+</br></br>
 <h4>Title: {{news.title}}</h4>
+<h1><a href="{% url 'members:show_profile_page' news.author.profile.id %}">Author: {{news.author}}</h1>
+
 <h4>{{news.post_date}}</h4>
 <h4>{{news.body|safe}}</h4>
 </div>
+
 <ul class="list-group list-group-flush dt">
 {% if comments %}
 <br/><br/>
@@ -49,7 +53,6 @@
 {% else %}
     <button type= "button", value="{{ news.id }}", class="fa fa-heart-o thumb"></button>
 {% endif %}
--{{news.total_likes}}
 
 </div>
 </div>
