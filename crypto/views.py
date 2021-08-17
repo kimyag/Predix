@@ -12,6 +12,8 @@ from .forms import PostForm, CommentForm
 from django.urls import reverse
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import JsonResponse
+import numpy
+from sklearn.linear_model import LinearRegression
 
 
 
@@ -28,6 +30,66 @@ class SearchCryptoView(View):
 
 class MyCryptoView(View):
 	def get(self, request):
+		# TODO: Keep the cryptocurrency and the price in a map to track it later and save to the database
+		# TODO: Send to predicted prices to the front-end to display
+		# predicted = model.predict(test_data)
+		# each feature a column = time
+		# each coin a sample = a row
+		## [a1,a2,a3,a4] coin a's price over time
+		## [b1,b2,b3,b4] coin b's price over time
+		## ...
+		##
+		X = []
+		training_Y = []
+		Maxs = []
+		# Keep max of each coin to also normalize the Y
+		# calculate X
+		all_cryptos = Cryptocurrency.objects.order_by('rank')
+
+
+		for crypto in all_cryptos:
+			# will ignore the data if the historical data size is less that 25
+			# will use last 25 data for training
+			if 25>len(CryptocurrencyLog.objects.filter(cryptocurrency=crypto).values_list('current_price', flat=True)):
+				continue
+			coin_price_over_time = CryptocurrencyLog.objects.filter(cryptocurrency=crypto).order_by('-current_time').values_list('current_price', flat=True)[:25]
+			coin_price_over_time = list(coin_price_over_time)
+			# Normalization- from sklearn import preprocessing can be used too
+			mx = max(coin_price_over_time)
+			Maxs.append(mx)
+			coin_price_over_time = [x / mx for x in coin_price_over_time]
+			X.append(coin_price_over_time)
+			# calculate Y
+			training_Y.append(crypto.price)
+		# found X, convert to numpy
+		X = numpy.array(X)
+
+
+		temp = []
+
+		for i, v in enumerate(training_Y):
+			temp.append(v/Maxs[i])
+		training_Y = temp
+		training_Y = numpy.array(training_Y)
+
+
+		model = LinearRegression(normalize = True)
+		#training using 25 coins
+		model.fit(X[:25], training_Y[:25])
+		#Predict
+		predicted = model.predict(X[25:])
+		print("Predicted array is:", predicted, "\n\n######\n\nActual array is:",training_Y[25:])
+		####################################################################################
+		# Q:The result is between [0:1] should I multiply it by the max value to ge the correnct result?!
+		####################################################################################
+		# Denormalization
+		result = []
+		print("------AFTER DENORMALIZATION-------")
+		for i,v in enumerate(predicted):
+			result.append(v*Maxs[i])
+			print(v, v*Maxs[i],"\n")
+
+		#________________________________________
 		coins = Cryptocurrency.objects.all()
 		user=request.user
 		if request.user.is_authenticated:
@@ -61,11 +123,11 @@ class DetailView(View):
 		labels = []
 		data = []
 
-
 		for ct in cryptocurrency:
 			labels.append(ct.current_time.strftime("%Y-%m-%d %H:%M"))
 			data.append(ct.current_price)
 		data = json.dumps(data)
+
 		context = {
 			'labels': json.dumps(labels),
 			'data': data,
@@ -153,7 +215,7 @@ def FavCoinView(request,pk):
 		return HttpResponseRedirect(reverse('crypto:index'))
 
 
-class DeletePostView(View):
+class DeletePostView(LoginRequiredMixin, View):
 	def get(self, request, post_id):
 		post = Post.objects.get(id=post_id)
 		if post.author != request.user:
@@ -161,7 +223,7 @@ class DeletePostView(View):
 		post.delete()
 		return HttpResponseRedirect(reverse('crypto:index'))
 
-class EditPostView(View):
+class EditPostView(LoginRequiredMixin, View):
 	def get(self, request, post_id):
 		post = Post.objects.get(id=post_id)
 		form = PostForm(instance = post)
@@ -181,7 +243,7 @@ class EditPostView(View):
 		context = {'form':form}
 		return redirect('crypto:index')
 
-class ExchangeView(View):
+class ExchangeView(LoginRequiredMixin, View):
 	def get(self, request):
 		user_entities = Entity.objects.filter(user=request.user)
 		total = 0
@@ -197,35 +259,39 @@ class ExchangeView(View):
 		user_entities = Entity.objects.filter(user=request.user)
 		return render(request, 'crypto/exchange.html', {'user_entities':user_entities})
 
-class BuyCryptoView(View):
+class BuyCryptoView(LoginRequiredMixin, View):
 	def get(self, request):
 			amount = request.GET['amount']
 			crypto = Cryptocurrency.objects.get(id=request.GET['cryptos'])
 			total=float(crypto.price)*float(amount)
-			entity = Entity(user=request.user, cryptocurrency=crypto, amount=amount, total=total)
-			entity.save()
-			print(entity.cryptocurrency.name,"BOUGHT")
-			user_entities = Entity.objects.filter(user=request.user)
-			return redirect('crypto:index')
+			if Entity.objects.filter(cryptocurrency_id=crypto.id,user=request.user).exists():
+				entity = Entity.objects.filter(cryptocurrency_id=crypto.id,user=request.user)
+				entity2 = Entity.objects.get(cryptocurrency_id=crypto.id,user=request.user)
+				entity.update(total=total+entity2.total,amount=float(amount)+entity2.amount)
+				return redirect('crypto:exchange')
+			else:
+				entity = Entity(user=request.user, cryptocurrency=crypto, amount=amount, total=total)
+				entity.save()
+				print(entity.cryptocurrency.name,"BOUGHT")
+				user_entities = Entity.objects.filter(user=request.user)
+				return redirect('crypto:exchange')
 
-class SellCryptoView(View):
+class SellCryptoView(LoginRequiredMixin, View):
 	def get(self, request):
 			amount = request.GET['amount']
 			crypto = Cryptocurrency.objects.get(id=request.GET['cryptos'])
-			entity = Entity.objects.get(cryptocurrency_id=crypto.id)
+			entity = Entity.objects.get(cryptocurrency_id=crypto.id,user=request.user)
+			entity1 = Entity.objects.filter(cryptocurrency_id=crypto.id,user=request.user)
 			if float(amount) < entity.amount:
 				new_amount = entity.amount-float(amount)
-				entity.update(amount=new_amount)
+				new_total = new_amount*crypto.price
+				entity1.update(amount=new_amount,total=new_total)
 			elif float(amount) == entity.amount:
-				entity.delete()
+				entity1.delete()
 			else:
 				print("you have not enough money")
 
 
-			return redirect('crypto:index')
-
-
-
-
+			return redirect('crypto:exchange')
 
 

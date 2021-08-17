@@ -21,7 +21,6 @@ def loginPage(request):
 
 
 def logoutPage(request):
-	print("logging out")
 	logout(request)
 	return redirect('crypto:index')
 
