@@ -1,0 +1,25 @@
+version: "3.9"
+   
+services:
+  db:
+    container_name: 'predix_db'
+    image: postgres
+    environment:
+      - POSTGRES_DB=test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+     # - ./db:/var/lib/postgresql/data1
+    ports:
+      - "5433:5433"
+  app:
+    container_name: 'predix_app'
+    build: ./app
+    command: python app/code/manage.py runserver 0.0.0.0:8000 
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
