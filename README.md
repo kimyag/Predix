@@ -1,5 +1,5 @@
 # Predix
--This is a Python Django application developed as my summer internship task in order to make tracking the change of cryptocurrencies easy.
+-This is a Python Django application developed as my summer internship task in order to make tracking of the change of cryptocurrencies easy.
   Postgre Database is used in order to store the data.
   
 -At the end Linear Regressioin is used to Predict the price using historical data.
